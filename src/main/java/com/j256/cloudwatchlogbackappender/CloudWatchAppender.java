@@ -67,7 +67,7 @@ public class CloudWatchAppender extends UnsynchronizedAppenderBase<ILoggingEvent
 	private static final long DEFAULT_MAX_BATCH_TIME_MILLIS = 5000;
 	/** internal event queue size before we drop log requests on the floor */
 	private static final int DEFAULT_INTERNAL_QUEUE_SIZE = 8192;
-	/** create log destination group and stream when we startup */
+	/** create log destination group and stream when we start up */
 	private static final boolean DEFAULT_CREATE_LOG_DESTS = true;
 	/** max time to wait in millis before dropping a log event on the floor */
 	private static final long DEFAULT_MAX_QUEUE_WAIT_TIME_MILLIS = 100;
@@ -119,7 +119,7 @@ public class CloudWatchAppender extends UnsynchronizedAppenderBase<ILoggingEvent
 	}
 
 	/**
-	 * After all of the setters, call initial to setup the appender.
+	 * After all the setters, call initial to set up the appender.
 	 */
 	@Override
 	public void start() {
@@ -127,7 +127,7 @@ public class CloudWatchAppender extends UnsynchronizedAppenderBase<ILoggingEvent
 			return;
 		}
 		/*
-		 * NOTE: as we startup here, we can't make any log calls so we can't make any RPC calls or anything without
+		 * NOTE: as we start up here, we can't make any log calls so we can't make any RPC calls or anything without
 		 * going recursive.
 		 */
 		if (MiscUtils.isBlank(region)) {
@@ -206,7 +206,7 @@ public class CloudWatchAppender extends UnsynchronizedAppenderBase<ILoggingEvent
 				appendToEmergencyAppender(loggingEvent);
 				return;
 			}
-			// we copy all of the fields over but with the truncated message
+			// we copy all the fields over but with the truncated message
 			loggingEvent = copyEvent(loggingEvent, message.substring(0, maxEventMessageSize));
 			copied = true;
 		}
@@ -510,7 +510,7 @@ public class CloudWatchAppender extends UnsynchronizedAppenderBase<ILoggingEvent
 			}
 
 			/*
-			 * We have been interrupted so write all of the rest of the events and then quit
+			 * We have been interrupted so write all the rest of the events and then quit
 			 */
 
 			events.clear();
@@ -677,7 +677,7 @@ public class CloudWatchAppender extends UnsynchronizedAppenderBase<ILoggingEvent
 				return name;
 			}
 			/*
-			 * Little bit of a hack here. We use one of our layout instances to format the _name_ of the log-stream.
+			 * A little bit of a hack here. We use one of our layout instances to format the _name_ of the log-stream.
 			 * This allows us to support the same %token that are supported by the messages.
 			 */
 			Ec2PatternLayout nameLayout = new Ec2PatternLayout();
@@ -754,7 +754,7 @@ public class CloudWatchAppender extends UnsynchronizedAppenderBase<ILoggingEvent
 					ec2Client.shutdown();
 				}
 			}
-			// if we can't lookup the instance name then set it as the instance-id
+			// if we can't look up the instance name then set it as the instance-id
 			Ec2InstanceNameConverter.setInstanceName(instanceId);
 		}
 
@@ -776,7 +776,7 @@ public class CloudWatchAppender extends UnsynchronizedAppenderBase<ILoggingEvent
 	}
 
 	/**
-	 * Compares a log event by it's timestamp value.
+	 * Compares a log event by its timestamp value.
 	 */
 	private static class InputLogEventComparator implements Comparator<InputLogEvent> {
 		@Override
