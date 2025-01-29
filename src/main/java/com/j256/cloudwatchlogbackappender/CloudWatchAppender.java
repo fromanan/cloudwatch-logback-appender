@@ -83,7 +83,7 @@ public class CloudWatchAppender extends UnsynchronizedAppenderBase<ILoggingEvent
 	public static final boolean DEFAULT_TRUNCATE_EVENT_MESSAGES = true;
 	public static final boolean DEFAULT_COPY_EVENTS = true;
 	public static final boolean DEFAULT_PRINT_REJECTED_EVENTS = false;
-	public static final Pattern LOG_GROUP_PATTERN = Pattern.compile("[\\.\\-_/#A-Za-z0-9]+");
+	public static final Pattern LOG_GROUP_PATTERN = Pattern.compile("[.\\-_/#A-Za-z0-9]+");
 
 	private String accessKeyId;
 	private String secretKey;
@@ -110,7 +110,7 @@ public class CloudWatchAppender extends UnsynchronizedAppenderBase<ILoggingEvent
 
 	private BlockingQueue<ILoggingEvent> loggingEventQueue;
 	private Thread cloudWatchWriterThread;
-	private final ThreadLocal<Boolean> stopMessagesThreadLocal = new ThreadLocal<Boolean>();
+  private final ThreadLocal<Boolean> stopMessagesThreadLocal = new ThreadLocal<>();
 	private volatile boolean warningMessagePrinted;
 	private final InputLogEventComparator inputLogEventComparator = new InputLogEventComparator();
 
@@ -147,7 +147,7 @@ public class CloudWatchAppender extends UnsynchronizedAppenderBase<ILoggingEvent
 			throw new IllegalStateException("Layout was not set for appender");
 		}
 
-		loggingEventQueue = new ArrayBlockingQueue<ILoggingEvent>(internalQueueSize);
+		loggingEventQueue = new ArrayBlockingQueue<>(internalQueueSize);
 
 		// create our writer thread in the background
 		cloudWatchWriterThread = new Thread(new CloudWatchWriter(), getClass().getSimpleName());
@@ -469,7 +469,6 @@ public class CloudWatchAppender extends UnsynchronizedAppenderBase<ILoggingEvent
 
 		@Override
 		public void run() {
-
 			try {
 				Thread.sleep(initialWaitTimeMillis);
 			} catch (InterruptedException e) {
@@ -477,7 +476,7 @@ public class CloudWatchAppender extends UnsynchronizedAppenderBase<ILoggingEvent
 				return;
 			}
 
-			List<ILoggingEvent> events = new ArrayList<ILoggingEvent>(maxBatchSize);
+      List<ILoggingEvent> events = new ArrayList<>(maxBatchSize);
 			Thread thread = Thread.currentThread();
 			while (!thread.isInterrupted()) {
 				long batchTimeout = System.currentTimeMillis() + maxBatchTimeMillis;
@@ -534,7 +533,6 @@ public class CloudWatchAppender extends UnsynchronizedAppenderBase<ILoggingEvent
 		}
 
 		private void writeEvents(List<ILoggingEvent> events) {
-
 			if (!initialized) {
 				initialized = true;
 				Exception exception = null;
@@ -566,7 +564,7 @@ public class CloudWatchAppender extends UnsynchronizedAppenderBase<ILoggingEvent
 			stopMessagesThreadLocal.set(true);
 			Exception exception = null;
 			try {
-				List<InputLogEvent> logEvents = new ArrayList<InputLogEvent>(events.size());
+				List<InputLogEvent> logEvents = new ArrayList<>(events.size());
 				for (ILoggingEvent event : events) {
 					String message = layout.doLayout(event);
 					InputLogEvent logEvent =
@@ -587,14 +585,14 @@ public class CloudWatchAppender extends UnsynchronizedAppenderBase<ILoggingEvent
 						exception = null;
 						eventsWrittenCount += logEvents.size();
 						break;
-					} catch (InvalidSequenceTokenException iste) {
-						exception = iste;
-						sequenceToken = iste.getExpectedSequenceToken();
+					} catch (InvalidSequenceTokenException tokenException) {
+						exception = tokenException;
+						sequenceToken = tokenException.getExpectedSequenceToken();
 					}
 				}
-			} catch (DataAlreadyAcceptedException daac) {
-				exception = daac;
-				sequenceToken = daac.getExpectedSequenceToken();
+			} catch (DataAlreadyAcceptedException dataException) {
+				exception = dataException;
+				sequenceToken = dataException.getExpectedSequenceToken();
 			} catch (Exception e) {
 				// catch everything else to make sure we don't quit the thread
 				exception = e;
